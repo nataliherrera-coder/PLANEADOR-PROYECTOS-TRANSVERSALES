@@ -544,12 +544,55 @@ table.matriz select:focus {
 </div>
 
 <!-- ═══════════════════════════════════════
-     BLOQUE 2 · COMPETENCIAS
+     BLOQUE 2 · TÍTULO Y OBJETIVOS
+════════════════════════════════════════ -->
+<div class="section">
+  <div class="sec-tag">
+    <span class="sec-dot" style="background:var(--teal)"></span>
+    <span class="sec-tag-text">Bloque 2</span>
+    <span class="sec-tag-sub">· Título y objetivos del proyecto</span>
+  </div>
+
+  <div class="field">
+    <label class="label">Título del proyecto</label>
+    <p class="hint">Dale un nombre claro y motivador. Ej: "Agua para todos: soluciones desde el barrio" o "Emprendedores del clima".</p>
+    <input type="text" id="tituloproyecto" name="tituloproyecto" placeholder="Escribe aquí el título del proyecto..." oninput="calcProgress()">
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field">
+    <label class="label">Objetivo general</label>
+    <div style="background:var(--teal-light);border:1px solid #A8DDD0;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:10px">
+      <p style="font-size:0.78rem;color:var(--teal);line-height:1.6;margin:0">
+        <strong>Sugerencia SMART:</strong> redacta el objetivo indicando
+        <strong>qué lograrán</strong> los estudiantes (específico),
+        <strong>cómo se medirá</strong> (medible),
+        <strong>si es alcanzable</strong> en el tiempo disponible (alcanzable),
+        <strong>su relevancia</strong> para el contexto real (relevante) y
+        <strong>en cuántas semanas</strong> se logrará (con tiempo definido).<br>
+        <em>Ej: "Al finalizar las 4 semanas del proyecto, los estudiantes diseñarán y presentarán una propuesta de solución viable al problema de residuos sólidos del colegio, sustentada con datos reales recolectados en la comunidad."</em>
+      </p>
+    </div>
+    <textarea id="objetivoGeneral" name="objetivoGeneral" rows="3"
+      placeholder="Al finalizar las ___ semanas del proyecto, los estudiantes..." oninput="calcProgress()"></textarea>
+  </div>
+
+  <div class="field">
+    <label class="label">Objetivos específicos</label>
+    <p class="hint">Describe los pasos o aprendizajes intermedios que harán posible el objetivo general. Puedes escribir entre 2 y 4 objetivos, uno por línea.</p>
+    <textarea id="objetivosEspecificos" name="objetivosEspecificos" rows="4"
+      placeholder="1. Identificar las causas principales del problema local mediante investigación de campo.&#10;2. Analizar la información recolectada aplicando conceptos de las áreas integradas.&#10;3. Diseñar una solución creativa y viable al problema identificado.&#10;4. Comunicar los resultados del proyecto ante una audiencia real." oninput="calcProgress()"></textarea>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     BLOQUE 3 · COMPETENCIAS
 ════════════════════════════════════════ -->
 <div class="section">
   <div class="sec-tag">
     <span class="sec-dot" style="background:var(--purple)"></span>
-    <span class="sec-tag-text">Bloque 2</span>
+    <span class="sec-tag-text">Bloque 3</span>
     <span class="sec-tag-sub">· Competencias que desarrolla el proyecto</span>
   </div>
   <p class="hint" style="margin-bottom:1rem">Selecciona las competencias que trabajarás intencionalmente. Tu selección aquí guiará la planeación y la evaluación de los bloques siguientes.</p>
@@ -617,22 +660,14 @@ table.matriz select:focus {
 </div>
 
 <!-- ═══════════════════════════════════════
-     BLOQUE 3 · PREGUNTA RETADORA
+     BLOQUE 4 · PREGUNTA RETADORA Y ODS
 ════════════════════════════════════════ -->
 <div class="section">
   <div class="sec-tag">
     <span class="sec-dot" style="background:#D4537E"></span>
-    <span class="sec-tag-text">Bloque 3</span>
-    <span class="sec-tag-sub">· Título del proyecto y pregunta retadora</span>
+    <span class="sec-tag-text">Bloque 4</span>
+    <span class="sec-tag-sub">· Pregunta retadora y ODS articuladores</span>
   </div>
-
-  <div class="field">
-    <label class="label">Título del proyecto</label>
-    <p class="hint">Dale un nombre claro y motivador. Ej: "Agua para todos: soluciones desde el barrio" o "Emprendedores del clima".</p>
-    <input type="text" id="tituloproyecto" name="tituloproyecto" placeholder="Escribe aquí el título del proyecto..." oninput="calcProgress()">
-  </div>
-
-  <div class="divider"></div>
   <p class="hint">Formula la pregunta que dará vida a todo el proyecto. Debe conectar el contexto local con el ODS elegido. Ej: "¿Cómo podría nuestra comunidad reducir el desperdicio de agua sin gastar dinero?"</p>
 
   <div class="field">
@@ -672,12 +707,12 @@ table.matriz select:focus {
 </div>
 
 <!-- ═══════════════════════════════════════
-     BLOQUE 4 · MATRIZ DE ALINEACIÓN
+     BLOQUE 5 · MATRIZ DE ALINEACIÓN
 ════════════════════════════════════════ -->
 <div class="section">
   <div class="sec-tag">
     <span class="sec-dot" style="background:var(--amber)"></span>
-    <span class="sec-tag-text">Bloque 4</span>
+    <span class="sec-tag-text">Bloque 5</span>
     <span class="sec-tag-sub">· Matriz de alineación curricular</span>
   </div>
   <p class="hint">Por cada área integrada, relaciona el estándar MEN/DBA que se trabajará, el tipo de competencia transversal y cómo se hará visible ese aprendizaje en los estudiantes.</p>
@@ -698,83 +733,103 @@ table.matriz select:focus {
 </div>
 
 <!-- ═══════════════════════════════════════
-     BLOQUE 5 · RUTA ABP + GANAG
+     BLOQUE 6 · RUTA DE ACCIÓN ABP
 ════════════════════════════════════════ -->
 <div class="section">
   <div class="sec-tag">
     <span class="sec-dot" style="background:var(--blue)"></span>
-    <span class="sec-tag-text">Bloque 5</span>
-    <span class="sec-tag-sub">· Ruta de acción — fases ABP con elementos GANAG por sesión</span>
+    <span class="sec-tag-text">Bloque 6</span>
+    <span class="sec-tag-sub">· Ruta de acción — fases del ABP</span>
   </div>
 
-  <!-- Recuadro explicativo GANAG -->
-  <div class="ganag-intro">
-    <div class="ganag-intro-title">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#5346B4" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.5" stroke="#5346B4" stroke-width="1.5" stroke-linecap="round"/></svg>
-      ¿Cómo usar GANAG dentro del ABP?
-    </div>
-    <p>El modelo GANAG (Jane Pollock) estructura <strong>cada sesión de clase</strong> dentro del proyecto, no el proyecto completo. Mientras el ABP puede durar semanas, GANAG te ayuda a que cada encuentro con los estudiantes tenga propósito claro, inicio activo y cierre metacognitivo. Úsalo especialmente en las sesiones más densas de cada fase.</p>
-    <br>
-    <div class="ganag-items">
-      <div class="ganag-item"><span class="ganag-letter">G</span><div class="ganag-item-inner"><span class="ganag-item-label">Goal (Meta de la sesión)</span><span class="ganag-item-hint">¿Qué aprenderán los estudiantes HOY dentro de este proyecto? Ej: "Hoy identificaremos las causas del problema local."</span></div></div>
-      <div class="ganag-item"><span class="ganag-letter">A</span><div class="ganag-item-inner"><span class="ganag-item-label">Access prior knowledge (Activación)</span><span class="ganag-item-hint">¿Qué estrategia usarás para conectar con lo que ya saben? Ej: pregunta detonante, imagen provocadora, encuesta rápida.</span></div></div>
-      <div class="ganag-item"><span class="ganag-letter">N</span><div class="ganag-item-inner"><span class="ganag-item-label">New information (Información nueva)</span><span class="ganag-item-hint">¿Qué conocimiento nuevo necesitan para avanzar en el proyecto? Ej: mini-clase, lectura, video, experto invitado.</span></div></div>
-      <div class="ganag-item"><span class="ganag-letter">A</span><div class="ganag-item-inner"><span class="ganag-item-label">Apply (Aplicación)</span><span class="ganag-item-hint">¿Cómo aplicarán ese conocimiento en su trabajo de proyecto? Ej: construyen el prototipo, analizan los datos, redactan la propuesta.</span></div></div>
-      <div class="ganag-item"><span class="ganag-letter">G</span><div class="ganag-item-inner"><span class="ganag-item-label">Generalize / Evaluate (Metacognición)</span><span class="ganag-item-hint">¿Cómo cerrarás la sesión conectando con la meta? Ej: ticket de salida, autoevaluación, actualización del diario del proyecto.</span></div></div>
-    </div>
-  </div>
-
-  <p class="hint" style="margin-bottom:1rem">Para cada fase, describe en 2–3 frases qué harán los estudiantes. Puedes añadir el elemento GANAG más relevante para las sesiones clave de esa fase.</p>
+  <p class="hint" style="margin-bottom:1rem">Para cada fase, describe en 2–3 frases qué harán los estudiantes. Sé concreto: ¿qué actividad, con qué herramienta o recurso, qué producto parcial generan?</p>
 
   <div class="fase-card">
     <div class="fase-header">
       <div class="fase-num" style="background:var(--teal-light);color:var(--teal)">1</div>
       <div><div class="fase-title">Definición del problema</div><div class="fase-sub">Presentar el reto auténtico · Activar saberes previos · Generar necesidad de aprender</div></div>
     </div>
-    <div class="field" style="margin-bottom:8px">
+    <div class="field">
       <label class="label">¿Qué harán los estudiantes en esta fase?</label>
       <textarea id="f1" name="f1" rows="2" placeholder="Ej: Los estudiantes observan un video sobre el problema local, responden 3 preguntas detonantes y comparten en un tablero colaborativo lo que ya saben y lo que necesitan aprender." oninput="calcProgress()"></textarea>
-    </div>
-    <div class="field">
-      <label class="label" style="color:var(--purple)">Elemento GANAG para la sesión de apertura de esta fase (opcional)</label>
-      <input type="text" id="g1" name="g1_ganag" placeholder="Ej: G — Meta de la sesión: 'Hoy identificaremos qué sabemos y qué necesitamos saber sobre el problema local.' / A — Activación: imagen detonante." oninput="calcProgress()">
     </div>
   </div>
 
   <div class="fase-card">
     <div class="fase-header">
       <div class="fase-num" style="background:var(--purple-light);color:var(--purple)">2</div>
-      <div><div class="fase-title">Lluvia de ideas</div><div class="fase-sub">Generar hipótesis · Identificar qué saben y qué necesitan aprender · Organizar equipos y roles</div></div>
+      <div><div class="fase-title">Contexto</div><div class="fase-sub">Describir el origen del proyecto · Identificar necesidades de la comunidad · Conectar con los intereses de los estudiantes</div></div>
     </div>
-    <div class="field" style="margin-bottom:8px">
+
+    <div class="field" style="margin-bottom:10px">
       <label class="label">¿Qué harán los estudiantes en esta fase?</label>
-      <textarea id="f2" name="f2" rows="2" placeholder="Ej: En grupos proponen posibles causas del problema, listan sus dudas en un organizador ¿Qué sabemos? / ¿Qué necesitamos saber? y acuerdan los roles del equipo." oninput="calcProgress()"></textarea>
+      <p class="hint">Describe las actividades con las que los estudiantes explorarán y describirán el contexto que da origen al proyecto. Ej: recorridos, encuestas, observación, conversaciones con la comunidad.</p>
+      <textarea id="f2" name="f2" rows="2" placeholder="Ej: Los estudiantes realizan una encuesta en el barrio para identificar problemáticas sentidas por los vecinos, socializan los resultados en clase y votan las 3 necesidades más urgentes relacionadas con el tema del proyecto." oninput="calcProgress()"></textarea>
     </div>
-    <div class="field" style="background:var(--purple-light);border:1px solid #D0CCFF;border-radius:var(--radius-sm);padding:12px 14px;margin-top:4px">
-      <label class="label" style="color:var(--purple);margin-bottom:6px">
-        <strong>A — Access prior knowledge</strong> · Activación de saberes previos
+
+    <div class="field" style="margin-bottom:10px">
+      <label class="label">Necesidades identificadas en la comunidad</label>
+      <p class="hint">¿Qué situaciones, carencias o problemas reales del entorno motivan este proyecto? Nómbralos de forma concreta.</p>
+      <textarea id="f2_necesidades" name="f2_necesidades" rows="2" placeholder="Ej: Acumulación de residuos sólidos en espacios públicos del barrio, falta de cultura del reciclaje, escasa participación ciudadana en el cuidado del entorno." oninput="calcProgress()"></textarea>
+    </div>
+
+    <div class="field" style="margin-bottom:10px">
+      <label class="label">Intereses de los estudiantes que dan origen al proyecto</label>
+      <p class="hint">¿Qué les llama la atención, preocupa o motiva a los estudiantes sobre esta realidad? Conectar sus intereses legitima el proyecto y aumenta el compromiso.</p>
+      <textarea id="f2_intereses" name="f2_intereses" rows="2" placeholder="Ej: Los estudiantes expresaron preocupación por el estado del parque cercano al colegio y el interés por aprender a reutilizar materiales de manera creativa." oninput="calcProgress()"></textarea>
+    </div>
+
+    <div class="field" style="background:var(--purple-light);border:1px solid #D0CCFF;border-radius:var(--radius-sm);padding:14px 16px;margin-top:4px">
+      <label class="label" style="color:var(--purple);margin-bottom:4px;font-size:0.85rem">
+        <strong>Organización de grupos y roles</strong>
       </label>
-      <p class="hint" style="color:#7A72CC;margin-bottom:10px">Esta fase es el momento ideal para activar lo que los estudiantes ya saben antes de generar nuevas hipótesis. Elige una estrategia y descríbela brevemente.</p>
-      <div class="field" style="margin-bottom:8px">
-        <label class="label">Estrategia de saberes previos que usarás</label>
-        <select id="g2_estrategia" name="g2_estrategia" onchange="calcProgress()" style="max-width:320px">
-          <option value="">Seleccionar estrategia...</option>
-          <option>Pregunta detonante o pregunta provocadora</option>
-          <option>Lluvia de ideas grupal (brainstorming)</option>
-          <option>Organizador ¿Qué sé? / ¿Qué quiero saber? / ¿Qué aprendí? (SQA)</option>
-          <option>Mapa mental o mapa conceptual previo</option>
-          <option>Encuesta rápida / sondeo con plataforma digital</option>
-          <option>Imagen o video detonante</option>
-          <option>Rutina de pensamiento: Veo – Pienso – Me pregunto</option>
-          <option>Línea de posicionamiento (acuerdo/desacuerdo)</option>
-          <option>Conversación socrática inicial</option>
-          <option>Juego de roles o simulación breve</option>
-          <option>Otra estrategia (descríbela abajo)</option>
-        </select>
+      <p class="hint" style="color:#7A72CC;margin-bottom:12px">En ABP cada estudiante tiene una responsabilidad clara dentro del equipo. Define cómo se organizarán los grupos y qué rol asumirá cada integrante. Esto garantiza participación activa y equitativa de todos.</p>
+
+      <div class="grid-2" style="margin-bottom:10px">
+        <div class="field">
+          <label class="label">Número de integrantes por grupo</label>
+          <select id="f2_tamano" name="f2_tamano" onchange="calcProgress()">
+            <option value="">Seleccionar...</option>
+            <option>2 estudiantes</option>
+            <option>3 estudiantes</option>
+            <option>4 estudiantes</option>
+            <option>5 estudiantes</option>
+            <option>Variable según el contexto</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Criterio de conformación de grupos</label>
+          <select id="f2_criterio" name="f2_criterio" onchange="calcProgress()">
+            <option value="">Seleccionar...</option>
+            <option>Elección libre por los estudiantes</option>
+            <option>Asignación docente por habilidades complementarias</option>
+            <option>Asignación docente por intereses comunes</option>
+            <option>Aleatorio</option>
+            <option>Por afinidad temática</option>
+            <option>Mixto (docente y estudiantes deciden)</option>
+          </select>
+        </div>
       </div>
+
       <div class="field">
-        <label class="label">Describe cómo la aplicarás en la sesión (2 frases)</label>
-        <input type="text" id="g2" name="g2_ganag" placeholder="Ej: Mostramos una imagen del problema local y pedimos a los estudiantes completar el organizador SQA en grupos de 3, conectando con lo que ya saben del área de Ciencias." oninput="calcProgress()">
+        <label class="label">Roles del equipo que se asignarán</label>
+        <p class="hint" style="color:#7A72CC">Marca los roles que usarán. Cada estudiante debe tener al menos uno.</p>
+        <div class="check-grid" style="margin-top:4px">
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Líder coordinador: orienta al equipo y modera decisiones</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Investigador: busca, selecciona y valida la información</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Gestor de recursos: organiza materiales, tiempos y herramientas</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Comunicador: redacta, presenta y comunica los resultados</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Diseñador / Creativo: da forma visual o estética al producto</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Evaluador / Revisor: verifica la calidad y coherencia del trabajo</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Conector comunitario: vincula al equipo con actores externos</span></label>
+          <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Tecnólogo: lidera el uso de herramientas digitales del equipo</span></label>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <label class="label">Notas sobre la organización de equipos (opcional)</label>
+        <input type="text" id="f2_notas_grupos" name="f2_notas_grupos"
+          placeholder="Ej: Los roles rotan en cada fase para que todos experimenten distintas responsabilidades. Se registran en una tabla de seguimiento compartida." oninput="calcProgress()">
       </div>
     </div>
   </div>
@@ -784,13 +839,9 @@ table.matriz select:focus {
       <div class="fase-num" style="background:var(--amber-light);color:var(--amber)">3</div>
       <div><div class="fase-title">Recolección de información</div><div class="fase-sub">Investigar · Explorar fuentes · Contrastar datos · Documentar hallazgos</div></div>
     </div>
-    <div class="field" style="margin-bottom:8px">
+    <div class="field">
       <label class="label">¿Qué harán los estudiantes en esta fase?</label>
       <textarea id="f3" name="f3" rows="2" placeholder="Ej: Los equipos investigan usando fuentes digitales, entrevistas comunitarias o salidas de campo, y registran hallazgos en una bitácora compartida." oninput="calcProgress()"></textarea>
-    </div>
-    <div class="field">
-      <label class="label" style="color:var(--purple)">Elemento GANAG para una sesión clave de esta fase (opcional)</label>
-      <input type="text" id="g3" name="g3_ganag" placeholder="Ej: N — Información nueva: taller de evaluación de fuentes digitales (CRAAP). G — Cierre metacognitivo: ticket de salida '¿Qué hallé hoy? ¿Qué me falta investigar?'" oninput="calcProgress()">
     </div>
   </div>
 
@@ -799,13 +850,9 @@ table.matriz select:focus {
       <div class="fase-num" style="background:var(--blue-light);color:var(--blue)">4</div>
       <div><div class="fase-title">Síntesis y elaboración del producto</div><div class="fase-sub">Construir la solución · Prototipar · Iterar con retroalimentación de pares</div></div>
     </div>
-    <div class="field" style="margin-bottom:8px">
+    <div class="field">
       <label class="label">¿Qué harán los estudiantes en esta fase?</label>
       <textarea id="f4" name="f4" rows="2" placeholder="Ej: Los equipos diseñan su propuesta de solución, la materializan en un prototipo y la mejoran con retroalimentación entre pares antes de la presentación final." oninput="calcProgress()"></textarea>
-    </div>
-    <div class="field">
-      <label class="label" style="color:var(--purple)">Elemento GANAG para una sesión clave de esta fase (opcional)</label>
-      <input type="text" id="g4" name="g4_ganag" placeholder="Ej: A — Aplicación: sesión de prototipado con materiales. G — Metacognición: los equipos actualizan su diario del proyecto con los ajustes realizados." oninput="calcProgress()">
     </div>
   </div>
 
@@ -814,13 +861,9 @@ table.matriz select:focus {
       <div class="fase-num" style="background:var(--coral-light);color:var(--coral)">5</div>
       <div><div class="fase-title">Presentación de resultados</div><div class="fase-sub">Comunicar ante una audiencia real · Defender ideas · Recibir retroalimentación externa</div></div>
     </div>
-    <div class="field" style="margin-bottom:8px">
+    <div class="field">
       <label class="label">¿Qué harán los estudiantes en esta fase?</label>
       <textarea id="f5" name="f5" rows="2" placeholder="Ej: Cada equipo presenta su solución ante la comunidad educativa o actores externos usando el formato más adecuado: video, maqueta, póster, app, etc." oninput="calcProgress()"></textarea>
-    </div>
-    <div class="field">
-      <label class="label" style="color:var(--purple)">Elemento GANAG para la sesión de preparación de la presentación (opcional)</label>
-      <input type="text" id="g5" name="g5_ganag" placeholder="Ej: G — Meta: 'Hoy afinaremos nuestra presentación para comunicar la solución con claridad.' A — Activación: el equipo revisa la rúbrica de evaluación de presentaciones." oninput="calcProgress()">
     </div>
   </div>
 
@@ -829,24 +872,20 @@ table.matriz select:focus {
       <div class="fase-num" style="background:var(--green-light);color:var(--green)">6</div>
       <div><div class="fase-title">Evaluación y reflexión</div><div class="fase-sub">Metacognición · Autoevaluación · Coevaluación · Aprendizajes clave del proyecto</div></div>
     </div>
-    <div class="field" style="margin-bottom:8px">
+    <div class="field">
       <label class="label">¿Qué harán los estudiantes en esta fase?</label>
       <textarea id="f6" name="f6" rows="2" placeholder="Ej: Los estudiantes completan una ficha de reflexión individual (¿qué aprendí?, ¿qué haría diferente?) y el equipo docente realiza la evaluación formativa con la rúbrica del proyecto." oninput="calcProgress()"></textarea>
-    </div>
-    <div class="field">
-      <label class="label" style="color:var(--purple)">Elemento GANAG para la sesión de cierre (opcional)</label>
-      <input type="text" id="g6" name="g6_ganag" placeholder="Ej: G — Cierre de la meta del proyecto: los estudiantes responden '¿Logramos responder nuestra pregunta retadora?' G — Metacognición general: carta a su yo futuro sobre los aprendizajes del proyecto." oninput="calcProgress()">
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════
-     BLOQUE 6 · PRODUCTO FINAL Y EVALUACIÓN
+     BLOQUE 7 · PRODUCTO FINAL Y EVALUACIÓN
 ════════════════════════════════════════ -->
 <div class="section">
   <div class="sec-tag">
     <span class="sec-dot" style="background:#D4537E"></span>
-    <span class="sec-tag-text">Bloque 6</span>
+    <span class="sec-tag-text">Bloque 7</span>
     <span class="sec-tag-sub">· Producto final y evaluación de competencias</span>
   </div>
 
@@ -914,12 +953,12 @@ table.matriz select:focus {
 </div>
 
 <!-- ═══════════════════════════════════════
-     BLOQUE 7 · ACUERDOS DEL EQUIPO
+     BLOQUE 8 · ACUERDOS DEL EQUIPO
 ════════════════════════════════════════ -->
 <div class="section">
   <div class="sec-tag">
     <span class="sec-dot" style="background:#888"></span>
-    <span class="sec-tag-text">Bloque 7</span>
+    <span class="sec-tag-text">Bloque 8</span>
     <span class="sec-tag-sub">· Acuerdos y compromisos del equipo docente</span>
   </div>
   <p class="hint" style="margin-bottom:0.75rem">Antes de entregar, registren aquí los acuerdos internos del equipo: ¿quién lidera cada fase? ¿cuándo se reúnen? ¿qué recursos necesitan gestionar? ¿hay estudiantes con NEE que requieren adaptaciones? Este campo es el espacio para dejar por escrito lo que el equipo necesita tener claro antes de arrancar.</p>
@@ -1034,7 +1073,7 @@ function updatePill(cb, cls) {
 
 /* ════════ PROGRESO ════════ */
 function calcProgress() {
-  const fields = ["institucion","grado","tiempo","tituloproyecto","preguntaRetadora","ods","f1","f2","f3","f4","f5","f6","producto","productoDesc"];
+  const fields = ["institucion","grado","tiempo","tituloproyecto","objetivoGeneral","objetivosEspecificos","preguntaRetadora","ods","f1","f2","f3","f4","f5","f6","producto","productoDesc"];
   let filled = fields.filter(id => {
     const el = document.getElementById(id);
     return el && el.value.trim() !== '';
@@ -1119,15 +1158,21 @@ EQUIPO DOCENTE
 --------------
 ${collectDocentes()}
 
+TÍTULO Y OBJETIVOS
+------------------
+Título: ${val("tituloproyecto")}
+Objetivo general: ${val("objetivoGeneral")}
+Objetivos específicos:
+${val("objetivosEspecificos")}
+
 COMPETENCIAS SELECCIONADAS
 --------------------------
 Digitales (ISTE): ${collectCompGroup(".comp-group:nth-child(2)")}
 Socioemocionales: ${collectCompGroup(".comp-group:nth-child(3)")}
 Emprendedoras (Fundadiv): ${collectCompGroup(".comp-group:nth-child(4)")}
 
-PREGUNTA RETADORA
------------------
-Título del proyecto: ${val("tituloproyecto")}
+PREGUNTA RETADORA Y ODS
+------------------------
 Pregunta: ${pregunta}
 ODS Principal: ${val("ods")}
 ODS Secundario: ${val("ods2")}
@@ -1136,31 +1181,29 @@ MATRIZ DE ALINEACIÓN
 --------------------
 ${collectMatriz()}
 
-RUTA ABP + GANAG
-----------------
+RUTA ABP — FASES
+-----------------
 1. Definición del problema:
-   Actividades: ${val("f1")}
-   GANAG: ${val("g1")}
+${val("f1")}
 
-2. Lluvia de ideas:
-   Actividades: ${val("f2")}
-   A — Estrategia de saberes previos: ${val("g2_estrategia")} / ${val("g2")}
+2. Contexto:
+${val("f2")}
+   Necesidades de la comunidad: ${val("f2_necesidades")}
+   Intereses de los estudiantes: ${val("f2_intereses")}
+   Organización de grupos: ${val("f2_tamano")} / Criterio: ${val("f2_criterio")}
+   Notas grupos: ${val("f2_notas_grupos")}
 
 3. Recolección de información:
-   Actividades: ${val("f3")}
-   GANAG: ${val("g3")}
+${val("f3")}
 
 4. Síntesis y elaboración del producto:
-   Actividades: ${val("f4")}
-   GANAG: ${val("g4")}
+${val("f4")}
 
 5. Presentación de resultados:
-   Actividades: ${val("f5")}
-   GANAG: ${val("g5")}
+${val("f5")}
 
 6. Evaluación y reflexión:
-   Actividades: ${val("f6")}
-   GANAG: ${val("g6")}
+${val("f6")}
 
 PRODUCTO FINAL
 --------------
