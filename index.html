@@ -405,22 +405,11 @@ table.matriz select:focus {
 }
 /* ── PRINT ── */
 @media print {
-  .page-header, .progress-wrap, .submit-wrap,
-  .add-btn, .ganag-intro, .badges { display: none !important; }
-  body { background: white; }
-  .section {
-    box-shadow: none !important;
-    border: 1px solid #ccc !important;
-    break-inside: avoid;
-    margin-bottom: 14px;
+  body * { visibility: hidden; }
+  #printArea, #printArea * { visibility: visible; }
+  #printArea {
+    position: absolute; top: 0; left: 0; width: 100%;
   }
-  .container { padding: 0; max-width: 100%; }
-  input, select, textarea { border: 1px solid #ccc !important; background: white !important; }
-  .check-pill { border: 1px solid #ccc !important; }
-  .comp-group, .fase-card, .eval-block { break-inside: avoid; }
-  .print-header { display: block !important; text-align: center; margin-bottom: 20px; }
-  .print-header h2 { font-size: 20px; font-family: 'DM Serif Display', serif; font-weight: 400; }
-  .print-header p  { font-size: 11px; color: #666; margin-top: 4px; }
 }
 .print-header { display: none; }
 
@@ -969,11 +958,15 @@ table.matriz select:focus {
   <div class="submit-email-note">
     ⚠️ <strong>Importante:</strong> Al enviar, el formulario llegará al correo del consultor pedagógico Fundadiv. Asegúrate de haber completado al menos los campos obligatorios: institución, docentes, pregunta retadora y fases ABP.
   </div>
-  <div class="btn-row">
+  <div class="btn-row" style="grid-template-columns:1fr auto auto">
     <button type="button" class="submit-btn" id="submitBtn" onclick="submitForm()">
       Enviar proyecto →
     </button>
-    <button type="button" class="print-btn" onclick="window.print()">
+    <button type="button" class="print-btn" onclick="document.getElementById('shareModal').style.display='flex'" style="gap:6px">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="13" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 7l5-3M5 9l5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Compartir
+    </button>
+    <button type="button" class="print-btn" onclick="printPDF()">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 5V2h8v3M4 11H2V6h12v5h-2M4 9h8v5H4V9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
         <circle cx="12" cy="8" r="0.75" fill="currentColor"/>
@@ -983,6 +976,26 @@ table.matriz select:focus {
   </div>
   <div class="msg" id="msgOk"></div>
   <div class="msg err" id="msgErr" style="display:none"></div>
+  <div id="autosaveNote" style="font-size:0.75rem;color:var(--ink-30);text-align:center;margin-top:8px;display:none">
+    💾 Borrador guardado automáticamente en este dispositivo
+  </div>
+</div>
+
+<!-- MODAL COMPARTIR -->
+<div id="shareModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--radius);padding:2rem;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:6px;color:var(--ink)">Compartir proyecto por correo</h3>
+    <p style="font-size:0.8rem;color:var(--ink-60);margin-bottom:1.2rem;line-height:1.5">Escribe el correo al que quieres enviar una copia del proyecto diligenciado hasta ahora.</p>
+    <div class="field" style="margin-bottom:12px">
+      <label class="label">Correo destinatario</label>
+      <input type="email" id="shareEmail" placeholder="colega@institución.edu.co" style="margin-top:4px">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="sendShare()" style="flex:1;background:linear-gradient(135deg,var(--teal-mid),#0F7B61);color:white;border:none;border-radius:var(--radius-sm);padding:10px;font-size:0.9rem;font-weight:500;font-family:var(--font-sans,sans-serif);cursor:pointer">Enviar copia →</button>
+      <button onclick="document.getElementById('shareModal').style.display='none'" style="padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;font-family:var(--font-sans,sans-serif);cursor:pointer;font-size:0.9rem;color:var(--ink-60)">Cancelar</button>
+    </div>
+    <div id="shareMsg" style="margin-top:10px;font-size:0.8rem;display:none"></div>
+  </div>
 </div>
 
 </div><!-- /container -->
@@ -1133,25 +1146,161 @@ function val(id) { const e = document.getElementById(id); return e ? e.value.tri
 
 /* ════════ SUBMIT ════════ */
 async function submitForm() {
-  const docentes = collectDocentes();
-  const pregunta = val("preguntaRetadora");
-  if (!docentes || !pregunta || !val("institucion")) {
-    const err = document.getElementById("msgErr");
-    err.textContent = "Por favor completa al menos: institución, datos del docente y pregunta retadora.";
-    err.style.display = "block";
-    document.getElementById("msgOk").style.display = "none";
-    return;
-  }
   const btn = document.getElementById("submitBtn");
   btn.disabled = true; btn.textContent = "Enviando...";
   document.getElementById("msgErr").style.display = "none";
 
-  const body = `PROYECTO TRANSVERSAL ABP — FUNDADIV
+  const bodyText = buildBody();
+  const correos = collectCorreos();
+
+  try {
+    // ── Formspree con JSON (evita error 422) ──
+    const payload = {
+      email: correos || "sin-correo@abp.fundadiv.co",
+      _subject: `Nuevo proyecto ABP — ${val("tituloproyecto") || val("institucion") || "Sin título"}`,
+      proyecto: bodyText
+    };
+    const formRes = await fetch("https://formspree.io/f/xvzdjkzy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const formJson = await formRes.json().catch(() => ({}));
+    if (!formRes.ok && formJson.error) throw new Error(formJson.error);
+
+    // ── Claude para retroalimentación inmediata ──
+    let fb = {};
+    try {
+      const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: `Eres un consultor pedagógico senior colombiano experto en ABP, competencias digitales ISTE, socioemocionales y emprendedoras Fundadiv. Analiza la plantilla y devuelve SOLO este JSON sin backticks:
+{"fortaleza":"2 frases sobre la fortaleza del proyecto","competencias_sugerencia":"una mejora sobre coherencia entre competencias y pregunta retadora","felicitacion":"frase de aliento personalizada para el equipo"}`,
+          messages: [{ role: "user", content: bodyText }]
+        })
+      });
+      const aiData = await aiRes.json();
+      const txt = (aiData.content?.find(b => b.type === "text")?.text || "{}").replace(/```json|```/g, "").trim();
+      fb = JSON.parse(txt);
+    } catch (_) {}
+
+    const ok = document.getElementById("msgOk");
+    ok.innerHTML = `<strong>✓ Proyecto enviado con éxito.</strong> Una copia llegó al correo del consultor pedagógico Fundadiv.<br><br>
+<strong>Retroalimentación pedagógica:</strong><br>
+${fb.fortaleza || "Tu proyecto tiene un enfoque sólido."}<br><br>
+<em>Sobre las competencias:</em> ${fb.competencias_sugerencia || "Verifica que las competencias seleccionadas se reflejen en la evaluación."}<br><br>
+${fb.felicitacion || "Gracias por su dedicación y trabajo en equipo."}`;
+    ok.style.display = "block";
+    btn.textContent = "Proyecto enviado ✓";
+    btn.style.background = "#E0F5EF"; btn.style.color = "var(--teal)"; btn.style.boxShadow = "none";
+  } catch (e) {
+    const err = document.getElementById("msgErr");
+    err.textContent = "Error al enviar. Verifica tu conexión e intenta de nuevo.";
+    err.style.display = "block";
+    btn.disabled = false; btn.textContent = "Enviar proyecto →";
+  }
+}
+
+/* ════════ COMPARTIR ════════ */
+async function sendShare() {
+  const email = document.getElementById("shareEmail").value.trim();
+  const msg = document.getElementById("shareMsg");
+  if (!email || !email.includes("@")) {
+    msg.style.display = "block"; msg.style.color = "var(--coral)";
+    msg.textContent = "Por favor escribe un correo válido."; return;
+  }
+  msg.style.display = "block"; msg.style.color = "var(--ink-60)";
+  msg.textContent = "Enviando...";
+  try {
+    const res = await fetch("https://formspree.io/f/xvzdjkzy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        _subject: `Copia proyecto ABP — ${val("tituloproyecto") || val("institucion") || "Sin título"}`,
+        proyecto: buildBody()
+      })
+    });
+    if (res.ok) {
+      msg.style.color = "var(--teal)";
+      msg.textContent = "✓ Copia enviada a " + email;
+      setTimeout(() => {
+        document.getElementById("shareModal").style.display = "none";
+        msg.style.display = "none";
+      }, 2500);
+    } else { throw new Error(); }
+  } catch (_) {
+    msg.style.color = "var(--coral)";
+    msg.textContent = "No se pudo enviar. Verifica tu conexión.";
+  }
+}
+
+/* ════════ AUTOGUARDADO ════════ */
+const SAVE_KEY = "abp_fundadiv_draft";
+
+function autosave() {
+  const data = {};
+  document.querySelectorAll("input[id]:not([type=checkbox]), select[id], textarea[id]").forEach(el => {
+    data[el.id] = el.value;
+  });
+  const allCbs = Array.from(document.querySelectorAll("input[type=checkbox]"));
+  data["__checkboxes"] = allCbs.map(cb => cb.checked);
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(_) {}
+  const note = document.getElementById("autosaveNote");
+  if (note) { note.style.display = "block"; setTimeout(() => { note.style.display = "none"; }, 2000); }
+}
+
+function restoreDraft() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch(_) { return; }
+  if (!data) return;
+  document.querySelectorAll("input[id]:not([type=checkbox]), select[id], textarea[id]").forEach(el => {
+    if (data[el.id] !== undefined) el.value = data[el.id];
+  });
+  if (Array.isArray(data["__checkboxes"])) {
+    const allCbs = Array.from(document.querySelectorAll("input[type=checkbox]"));
+    data["__checkboxes"].forEach((checked, i) => {
+      if (allCbs[i]) {
+        allCbs[i].checked = checked;
+        if (checked) {
+          const pill = allCbs[i].closest(".check-pill");
+          if (pill) {
+            const grps = document.querySelectorAll(".comp-group");
+            if (pill.closest(".comp-group") === grps[0]) updatePill(allCbs[i], "checked-teal");
+            else if (pill.closest(".comp-group") === grps[1]) updatePill(allCbs[i], "checked-purple");
+            else if (pill.closest(".comp-group") === grps[2]) updatePill(allCbs[i], "checked-amber");
+            else updatePill(allCbs[i], "checked-teal");
+          }
+        }
+      }
+    });
+  }
+  const otraCb = document.querySelector("#otraPill input[type=checkbox]");
+  if (otraCb?.checked) document.getElementById("otraArea").style.display = "block";
+  calcProgress();
+}
+
+function hookAutosave() {
+  document.querySelectorAll("input, select, textarea").forEach(el => {
+    el.addEventListener("change", autosave);
+    el.addEventListener("input", autosave);
+  });
+}
+
+/* ════════ BUILD BODY ════════ */
+function buildBody() {
+  const areas = Array.from(document.querySelectorAll("#areasGrid input[type=checkbox]:checked"))
+    .map(c => c.parentElement.textContent.trim()).join(", ");
+  const otraArea = document.getElementById("otraArea")?.value || "";
+  return `PROYECTO TRANSVERSAL ABP — FUNDADIV
 =====================================
 INSTITUCIÓN: ${val("institucion")}
 GRADO: ${val("grado")}
 DURACIÓN: ${val("tiempo")}
-ÁREAS: ${collectAreas()}
+ÁREAS: ${areas}${otraArea ? ", " + otraArea : ""}
 
 EQUIPO DOCENTE
 --------------
@@ -1172,7 +1321,7 @@ Emprendedoras (Fundadiv): ${collectCompGroup(".comp-group:nth-child(4)")}
 
 PREGUNTA RETADORA Y ODS
 ------------------------
-Pregunta: ${pregunta}
+Pregunta: ${val("preguntaRetadora")}
 ODS Principal: ${val("ods")}
 ODS Secundario: ${val("ods2")}
 
@@ -1223,56 +1372,239 @@ ${collectEval(evalEmpreData, "evalEmpre")}
 ACUERDOS DEL EQUIPO
 -------------------
 ${val("notas")}`;
+}
 
-  try {
-    // ── 1. Enviar a Formspree (llega al correo del consultor) ──
-    const formData = new FormData();
-    formData.append("_subject", `Nuevo proyecto ABP — ${val("tituloproyecto") || val("institucion")}`);
-    formData.append("_replyto", collectCorreos());
-    formData.append("proyecto", body);
+/* ════════ PRINT
 
-    const formRes = await fetch("https://formspree.io/f/xvzdjkzy", {
-      method: "POST",
-      body: formData,
-      headers: { "Accept": "application/json" }
-    });
-    if (!formRes.ok) throw new Error("Formspree error: " + formRes.status);
+/* ════════ PRINT / PDF ════════ */
+function printPDF() {
+  // Open a blank window for printing
+  const pw = window.open('', '_blank', 'width=900,height=700');
+  if (!pw) { alert('Por favor permite las ventanas emergentes para generar el PDF.'); return; }
 
-    // ── 2. Llamar a Claude para retroalimentación inmediata en pantalla ──
-    let fb = {};
-    try {
-      const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: `Eres un consultor pedagógico senior colombiano experto en ABP, modelo GANAG, competencias digitales ISTE, socioemocionales y emprendedoras Fundadiv. Analiza la plantilla y devuelve SOLO este JSON sin backticks:
-{"fortaleza":"2 frases sobre la fortaleza del proyecto","ganag_sugerencia":"una sugerencia concreta sobre el uso del modelo GANAG en las sesiones","competencias_sugerencia":"una mejora sobre la coherencia entre competencias y pregunta retadora","felicitacion":"frase de aliento personalizada para el equipo"}`,
-          messages: [{ role: "user", content: body }]
-        })
-      });
-      const aiData = await aiRes.json();
-      const txt = (aiData.content?.find(b => b.type === "text")?.text || "{}").replace(/```json|```/g, "").trim();
-      fb = JSON.parse(txt);
-    } catch (_) { /* Si falla la IA, igual mostramos éxito por el envío a Formspree */ }
-
-    const ok = document.getElementById("msgOk");
-    ok.innerHTML = `<strong>✓ Proyecto enviado con éxito.</strong> Una copia ha llegado al correo del consultor pedagógico Fundadiv.<br><br>
-<strong>Retroalimentación pedagógica inmediata:</strong><br>
-${fb.fortaleza || "Tu proyecto tiene un enfoque sólido."}<br><br>
-<em>Sobre el uso del GANAG:</em> ${fb.ganag_sugerencia || "Recuerda que GANAG estructura cada sesión individual dentro del proyecto, no las fases completas."}<br>
-<em>Sobre las competencias:</em> ${fb.competencias_sugerencia || "Verifica que las competencias seleccionadas se reflejen en la evaluación."}<br><br>
-${fb.felicitacion || "Gracias por su dedicación y trabajo en equipo."}`;
-    ok.style.display = "block";
-    btn.textContent = "Proyecto enviado ✓";
-    btn.style.background = "#E0F5EF"; btn.style.color = "var(--teal)"; btn.style.boxShadow = "none";
-  } catch (e) {
-    const err = document.getElementById("msgErr");
-    err.textContent = "Error al enviar. Verifica tu conexión e intenta de nuevo. (" + e.message + ")";
-    err.style.display = "block";
-    btn.disabled = false; btn.textContent = "Enviar proyecto →";
+  // Helper: get full text of a field (including scrolled content)
+  function fieldVal(el) {
+    if (!el) return '';
+    if (el.tagName === 'SELECT') return el.options[el.selectedIndex]?.text || '';
+    return el.value || '';
   }
+
+  // Helper: get checked labels from a group of checkboxes
+  function checkedLabels(container) {
+    return Array.from(container.querySelectorAll('.check-pill'))
+      .filter(p => p.querySelector('input[type=checkbox]')?.checked)
+      .map(p => (p.querySelector('span') || p).textContent.trim())
+      .join(', ') || '—';
+  }
+
+  // Helper: render a labeled block
+  function row(label, value) {
+    if (!value || value.trim() === '' || value === '—') return '';
+    return `<div class="row"><div class="lbl">${label}</div><div class="val">${value.replace(/\n/g, '<br>')}</div></div>`;
+  }
+
+  function section(title, color, content) {
+    return `<div class="sec"><div class="sec-head" style="border-left:4px solid ${color}">${title}</div>${content}</div>`;
+  }
+
+  // Collect docentes
+  const docenteRows = Array.from(document.querySelectorAll('.docente-row')).map(r => {
+    const n = r.querySelector('.d-nombre')?.value || '';
+    const c = r.querySelector('.d-correo')?.value || '';
+    const a = r.querySelector('.d-area')?.value || '';
+    return n ? `${n} — ${a}${c ? ' (' + c + ')' : ''}` : null;
+  }).filter(Boolean).join('<br>');
+
+  // Collect areas
+  const areas = Array.from(document.querySelectorAll('#areasGrid input[type=checkbox]:checked'))
+    .map(c => c.parentElement.textContent.trim()).join(', ');
+  const otraArea = document.getElementById('otraArea')?.value || '';
+
+  // Collect matriz
+  const matrizRows = Array.from(document.querySelectorAll('#matrizBody tr')).map(tr => {
+    const cells = Array.from(tr.querySelectorAll('td')).map(td => {
+      const el = td.querySelector('input, select');
+      return el ? fieldVal(el) : '';
+    });
+    return cells.some(c => c) ? `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>` : '';
+  }).join('');
+
+  // Collect eval blocks
+  function evalBlock(data, containerId) {
+    return data.map((d, i) => {
+      const cb = document.getElementById(`${containerId}_${i}`);
+      if (!cb?.checked) return '';
+      const sel = document.querySelector(`#${containerId} .eval-row:nth-child(${i+1}) select`);
+      return `<div class="eval-item">✓ ${d} <span class="nivel">${sel?.value || ''}</span></div>`;
+    }).join('');
+  }
+
+  // Collect roles
+  const rolesBlock = document.getElementById('f2_roles_wrap');
+  const roles = rolesBlock
+    ? Array.from(rolesBlock.querySelectorAll('.check-pill'))
+        .filter(p => p.querySelector('input[type=checkbox]')?.checked)
+        .map(p => (p.querySelector('span') || p).textContent.trim())
+        .join('<br>')
+    : checkedLabels(document.querySelector('.fase-card:nth-of-type(2) .check-grid') || document.body);
+
+  const g = id => fieldVal(document.getElementById(id));
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Proyecto ABP — ${g('tituloproyecto') || g('institucion') || 'Fundadiv'}</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #1a1a2e; line-height: 1.5; }
+  .cover { text-align: center; padding: 24px 0 18px; border-bottom: 2px solid #1DA882; margin-bottom: 18px; }
+  .cover h1 { font-size: 20px; font-weight: 600; color: #0F7B61; margin-bottom: 4px; }
+  .cover .sub { font-size: 10px; color: #888; }
+  .cover .meta { font-size: 11px; color: #444; margin-top: 8px; }
+  .sec { margin-bottom: 14px; break-inside: avoid; }
+  .sec-head {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: #444;
+    padding: 5px 8px; background: #f5f5f8;
+    margin-bottom: 6px; border-radius: 3px;
+  }
+  .row { display: grid; grid-template-columns: 150px 1fr; gap: 6px; margin-bottom: 5px; align-items: start; }
+  .lbl { font-size: 10px; font-weight: 600; color: #666; padding-top: 1px; }
+  .val { font-size: 11px; color: #1a1a2e; }
+  .fase { border: 1px solid #e2e2ec; border-radius: 5px; padding: 8px 10px; margin-bottom: 8px; break-inside: avoid; }
+  .fase-title { font-size: 11px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .fase-sub { font-size: 10px; color: #888; margin-bottom: 6px; }
+  .fase-field { margin-bottom: 5px; }
+  .fase-field .lbl { font-size: 10px; font-weight: 600; color: #666; margin-bottom: 2px; }
+  .fase-field .val { font-size: 11px; }
+  table.matriz { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 4px; }
+  table.matriz th { background: #f5f5f8; color: #666; font-weight: 600; padding: 5px 7px; text-align: left; border: 1px solid #ddd; }
+  table.matriz td { padding: 5px 7px; border: 1px solid #ddd; vertical-align: top; }
+  table.matriz tr:nth-child(even) td { background: #fafafa; }
+  .comp-block { margin-bottom: 6px; }
+  .comp-label { font-size: 10px; font-weight: 700; color: #555; margin-bottom: 3px; }
+  .comp-val { font-size: 10px; color: #333; }
+  .eval-item { font-size: 10px; margin-bottom: 3px; }
+  .nivel { background: #e0f5ef; color: #0f7b61; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 10px; margin-left: 6px; }
+  .org-box { background: #f3f0ff; border: 1px solid #d0ccff; border-radius: 4px; padding: 8px 10px; margin-top: 6px; }
+  .org-box .lbl { color: #5346b4; }
+  .roles-list { font-size: 10px; color: #333; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>${g('tituloproyecto') || 'Proyecto Transversal ABP'}</h1>
+  <div class="sub">Formato de planeación · Fundadiv · MEN / DBA / ODS / ISTE</div>
+  <div class="meta">
+    ${g('institucion') ? '<strong>' + g('institucion') + '</strong>' : ''}
+    ${g('grado') ? ' · ' + g('grado') : ''}
+    ${g('tiempo') ? ' · ' + g('tiempo') : ''}
+  </div>
+</div>
+
+${section('Bloque 1 · Identificación del equipo docente', '#1DA882', `
+  ${row('Institución', g('institucion'))}
+  ${row('Grado', g('grado'))}
+  ${row('Duración', g('tiempo'))}
+  ${row('Áreas integradas', (areas + (otraArea ? ', ' + otraArea : '')) || '—')}
+  ${row('Equipo docente', docenteRows || '—')}
+`)}
+
+${section('Bloque 2 · Título y objetivos', '#0F7B61', `
+  ${row('Título del proyecto', g('tituloproyecto'))}
+  ${row('Objetivo general', g('objetivoGeneral'))}
+  ${row('Objetivos específicos', g('objetivosEspecificos'))}
+`)}
+
+${section('Bloque 3 · Competencias seleccionadas', '#5346B4', `
+  <div class="comp-block"><div class="comp-label">Competencias digitales (ISTE)</div>
+    <div class="comp-val">${checkedLabels(document.querySelectorAll('.comp-group')[0] || document.body)}</div></div>
+  <div class="comp-block"><div class="comp-label">Competencias socioemocionales</div>
+    <div class="comp-val">${checkedLabels(document.querySelectorAll('.comp-group')[1] || document.body)}</div></div>
+  <div class="comp-block"><div class="comp-label">Competencias emprendedoras (Fundadiv)</div>
+    <div class="comp-val">${checkedLabels(document.querySelectorAll('.comp-group')[2] || document.body)}</div></div>
+`)}
+
+${section('Bloque 4 · Pregunta retadora y ODS', '#D4537E', `
+  ${row('Pregunta retadora', g('preguntaRetadora'))}
+  ${row('ODS principal', fieldVal(document.getElementById('ods')))}
+  ${row('ODS secundario', fieldVal(document.getElementById('ods2')))}
+`)}
+
+${section('Bloque 5 · Matriz de alineación curricular', '#BA7517', `
+  <table class="matriz">
+    <thead><tr><th>Área</th><th>Estándar MEN / DBA</th><th>Tipo de competencia</th><th>¿Cómo se evidencia?</th></tr></thead>
+    <tbody>${matrizRows}</tbody>
+  </table>
+`)}
+
+${section('Bloque 6 · Ruta de acción — fases del ABP', '#1A5FA6', `
+  <div class="fase">
+    <div class="fase-title">1. Definición del problema</div>
+    <div class="fase-sub">Presentar el reto auténtico · Activar saberes previos · Generar necesidad de aprender</div>
+    <div class="fase-field"><div class="val">${g('f1') || '—'}</div></div>
+  </div>
+  <div class="fase">
+    <div class="fase-title">2. Contexto</div>
+    <div class="fase-sub">Necesidades de la comunidad · Intereses de los estudiantes · Organización de equipos</div>
+    <div class="fase-field"><div class="lbl">Actividades</div><div class="val">${g('f2') || '—'}</div></div>
+    <div class="fase-field"><div class="lbl">Necesidades identificadas</div><div class="val">${g('f2_necesidades') || '—'}</div></div>
+    <div class="fase-field"><div class="lbl">Intereses de los estudiantes</div><div class="val">${g('f2_intereses') || '—'}</div></div>
+    <div class="org-box">
+      <div class="lbl" style="font-weight:700;margin-bottom:4px">Organización de grupos y roles</div>
+      ${row('Tamaño del grupo', fieldVal(document.getElementById('f2_tamano')))}
+      ${row('Criterio de conformación', fieldVal(document.getElementById('f2_criterio')))}
+      <div class="lbl" style="margin-top:4px;margin-bottom:2px">Roles asignados</div>
+      <div class="roles-list">${Array.from(document.querySelectorAll('.fase-card .check-grid .check-pill')).filter(p=>p.querySelector('input[type=checkbox]')?.checked).map(p=>'✓ '+(p.querySelector('span')||p).textContent.trim()).join('<br>') || '—'}</div>
+      ${row('Notas', g('f2_notas_grupos'))}
+    </div>
+  </div>
+  <div class="fase">
+    <div class="fase-title">3. Recolección de información</div>
+    <div class="fase-sub">Investigar · Explorar fuentes · Contrastar datos · Documentar hallazgos</div>
+    <div class="fase-field"><div class="val">${g('f3') || '—'}</div></div>
+  </div>
+  <div class="fase">
+    <div class="fase-title">4. Síntesis y elaboración del producto</div>
+    <div class="fase-sub">Construir la solución · Prototipar · Iterar con retroalimentación de pares</div>
+    <div class="fase-field"><div class="val">${g('f4') || '—'}</div></div>
+  </div>
+  <div class="fase">
+    <div class="fase-title">5. Presentación de resultados</div>
+    <div class="fase-sub">Comunicar ante una audiencia real · Defender ideas · Recibir retroalimentación externa</div>
+    <div class="fase-field"><div class="val">${g('f5') || '—'}</div></div>
+  </div>
+  <div class="fase">
+    <div class="fase-title">6. Evaluación y reflexión</div>
+    <div class="fase-sub">Metacognición · Autoevaluación · Coevaluación · Aprendizajes clave</div>
+    <div class="fase-field"><div class="val">${g('f6') || '—'}</div></div>
+  </div>
+`)}
+
+${section('Bloque 7 · Producto final y evaluación', '#D4537E', `
+  ${row('Tipo de producto', fieldVal(document.getElementById('producto')))}
+  ${row('Descripción', g('productoDesc'))}
+  <div class="comp-block" style="margin-top:8px"><div class="comp-label">Evaluación — Competencias digitales</div>
+    <div>${evalBlock(evalDigitalData, 'evalDigital') || '—'}</div></div>
+  <div class="comp-block"><div class="comp-label">Evaluación — Competencias socioemocionales</div>
+    <div>${evalBlock(evalSocioData, 'evalSocio') || '—'}</div></div>
+  <div class="comp-block"><div class="comp-label">Evaluación — Competencias emprendedoras</div>
+    <div>${evalBlock(evalEmpreData, 'evalEmpre') || '—'}</div></div>
+`)}
+
+${section('Bloque 8 · Acuerdos y compromisos del equipo docente', '#555', `
+  <div style="font-size:11px;white-space:pre-wrap">${g('notas') || '—'}</div>
+`)}
+
+</body>
+</html>`;
+
+  pw.document.write(html);
+  pw.document.close();
+  pw.onload = () => { pw.focus(); pw.print(); };
 }
 
 /* ════════ INIT ════════ */
@@ -1280,6 +1612,8 @@ buildEval(evalDigitalData, "evalDigital");
 buildEval(evalSocioData, "evalSocio");
 buildEval(evalEmpreData, "evalEmpre");
 addMatrizRow(); addMatrizRow();
+restoreDraft();
+hookAutosave();
 calcProgress();
 </script>
 </body>
