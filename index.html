@@ -587,6 +587,9 @@ table.matriz select:focus {
 
   <!-- DIGITALES ISTE -->
   <div class="comp-group" id="compDigital">
+    <div class="comp-group-title">
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--blue);display:inline-block;flex-shrink:0"></span>
+      Competencias digitales
       <span class="comp-group-sub">— Estándares ISTE para estudiantes</span>
     </div>
     <div class="check-grid">
@@ -955,7 +958,7 @@ table.matriz select:focus {
   <div class="submit-email-note">
     ⚠️ <strong>Importante:</strong> Al enviar, el formulario llegará al correo del consultor pedagógico Fundadiv. Asegúrate de haber completado al menos los campos obligatorios: institución, docentes, pregunta retadora y fases ABP.
   </div>
-  <div class="btn-row" style="grid-template-columns:1fr auto auto">
+  <div class="btn-row" style="grid-template-columns:1fr auto auto auto">
     <button type="button" class="submit-btn" id="submitBtn" onclick="submitForm()">
       Enviar proyecto →
     </button>
@@ -969,6 +972,10 @@ table.matriz select:focus {
         <circle cx="12" cy="8" r="0.75" fill="currentColor"/>
       </svg>
       Imprimir
+    </button>
+    <button type="button" class="print-btn" onclick="document.getElementById('newFormModal').style.display='flex'" style="gap:6px;color:var(--coral);border-color:#F5C0BB">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Nuevo
     </button>
   </div>
   <div class="msg" id="msgOk"></div>
@@ -992,6 +999,18 @@ table.matriz select:focus {
       <button onclick="document.getElementById('shareModal').style.display='none'" style="padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;font-family:var(--font-sans,sans-serif);cursor:pointer;font-size:0.9rem;color:var(--ink-60)">Cancelar</button>
     </div>
     <div id="shareMsg" style="margin-top:10px;font-size:0.8rem;display:none"></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO FORMULARIO -->
+<div id="newFormModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--radius);padding:2rem;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:8px;color:var(--ink)">¿Iniciar un formulario nuevo?</h3>
+    <p style="font-size:0.82rem;color:var(--ink-60);margin-bottom:1.5rem;line-height:1.6">Se borrará toda la información diligenciada y el borrador guardado. Esta acción no se puede deshacer.<br><br><strong>Asegúrate de haber enviado o impreso el proyecto antes de continuar.</strong></p>
+    <div style="display:flex;gap:10px">
+      <button onclick="clearDraft()" style="flex:1;background:var(--coral);color:white;border:none;border-radius:var(--radius-sm);padding:10px;font-size:0.9rem;font-weight:500;font-family:var(--font-sans,sans-serif);cursor:pointer">Sí, borrar y empezar de nuevo</button>
+      <button onclick="document.getElementById('newFormModal').style.display='none'" style="padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;font-family:var(--font-sans,sans-serif);cursor:pointer;font-size:0.9rem;color:var(--ink-60)">Cancelar</button>
+    </div>
   </div>
 </div>
 
@@ -1301,6 +1320,55 @@ function hookAutosave() {
     el.addEventListener("change", autosave);
     el.addEventListener("input", autosave);
   });
+}
+
+/* ════════ NUEVO FORMULARIO ════════ */
+function clearDraft() {
+  // Borrar localStorage
+  try { localStorage.removeItem(SAVE_KEY); } catch(_) {}
+
+  // Limpiar todos los inputs de texto, selects y textareas
+  document.querySelectorAll("input[type=text], input[type=email], textarea").forEach(el => { el.value = ''; });
+  document.querySelectorAll("select").forEach(el => { el.selectedIndex = 0; });
+
+  // Desmarcar todos los checkboxes y quitar clases de color
+  document.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.checked = false;
+    const pill = cb.closest(".check-pill");
+    if (pill) pill.classList.remove("checked-teal", "checked-purple", "checked-amber");
+  });
+
+  // Ocultar campo "otra área"
+  const otraArea = document.getElementById("otraArea");
+  if (otraArea) otraArea.style.display = "none";
+
+  // Resetear docentes: dejar solo la primera fila vacía
+  const dc = document.getElementById("docentesContainer");
+  if (dc) {
+    const rows = dc.querySelectorAll(".docente-row");
+    rows.forEach((row, i) => { if (i > 0) row.remove(); else row.querySelectorAll("input").forEach(i => i.value = ''); });
+  }
+
+  // Resetear matriz: dejar solo 2 filas vacías
+  const mb = document.getElementById("matrizBody");
+  if (mb) { mb.innerHTML = ''; addMatrizRow(); addMatrizRow(); }
+
+  // Resetear evaluaciones (desmarcar todos)
+  document.querySelectorAll("#evalDigital input[type=checkbox], #evalSocio input[type=checkbox], #evalEmpre input[type=checkbox]").forEach(cb => { cb.checked = false; });
+  document.querySelectorAll("#evalDigital select, #evalSocio select, #evalEmpre select").forEach(sel => { sel.selectedIndex = 0; });
+
+  // Resetear botón de envío
+  const btn = document.getElementById("submitBtn");
+  if (btn) { btn.disabled = false; btn.textContent = "Enviar proyecto →"; btn.style.background = ""; btn.style.color = ""; btn.style.boxShadow = ""; }
+
+  // Ocultar mensajes
+  document.getElementById("msgOk").style.display = "none";
+  document.getElementById("msgErr").style.display = "none";
+
+  // Cerrar modal y recalcular
+  document.getElementById("newFormModal").style.display = "none";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  calcProgress();
 }
 
 /* ════════ BUILD BODY ════════ */
