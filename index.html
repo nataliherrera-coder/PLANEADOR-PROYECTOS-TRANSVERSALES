@@ -559,7 +559,7 @@ table.matriz select:focus {
         <strong>si es alcanzable</strong> en el tiempo disponible (alcanzable),
         <strong>su relevancia</strong> para el contexto real (relevante) y
         <strong>en cuántas semanas</strong> se logrará (con tiempo definido).<br>
-        <em>Ej: "Al finalizar las 4 semanas del proyecto, los estudiantes deberán diseñar una propuesta de solución viable al problema de residuos sólidos del colegio, sustentada con datos reales recolectados en la comunidad."</em>
+        <em>Ej: "Diseñar una propuesta de solución viable para reducir en un 20% la generación de residuos sólidos en el colegio, sustentada con los datos recolectados de la comunidad escolar para ser presentada al finalizar las 4 semanas del proyecto."</em>
       </p>
     </div>
     <textarea id="objetivoGeneral" name="objetivoGeneral" rows="3"
@@ -586,10 +586,7 @@ table.matriz select:focus {
   <p class="hint" style="margin-bottom:1rem">Selecciona las competencias que trabajarás intencionalmente. Tu selección aquí guiará la planeación y la evaluación de los bloques siguientes.</p>
 
   <!-- DIGITALES ISTE -->
-  <div class="comp-group">
-    <div class="comp-group-title">
-      <span style="width:10px;height:10px;border-radius:50%;background:var(--blue);display:inline-block;flex-shrink:0"></span>
-      Competencias digitales
+  <div class="comp-group" id="compDigital">
       <span class="comp-group-sub">— Estándares ISTE para estudiantes</span>
     </div>
     <div class="check-grid">
@@ -604,7 +601,7 @@ table.matriz select:focus {
   </div>
 
   <!-- SOCIOEMOCIONALES -->
-  <div class="comp-group">
+  <div class="comp-group" id="compSocio">
     <div class="comp-group-title">
       <span style="width:10px;height:10px;border-radius:50%;background:#D4537E;display:inline-block;flex-shrink:0"></span>
       Competencias socioemocionales
@@ -623,7 +620,7 @@ table.matriz select:focus {
   </div>
 
   <!-- EMPRENDEDORAS -->
-  <div class="comp-group">
+  <div class="comp-group" id="compEmpre">
     <div class="comp-group-title">
       <span style="width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block;flex-shrink:0"></span>
       Competencias emprendedoras
@@ -802,7 +799,7 @@ table.matriz select:focus {
       <div class="field">
         <label class="label">Roles del equipo que se asignarán</label>
         <p class="hint" style="color:#7A72CC">Marca los roles que usarán. Cada estudiante debe tener al menos uno.</p>
-        <div class="check-grid" style="margin-top:4px">
+        <div class="check-grid" id="rolesGrid" style="margin-top:4px">
           <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Líder coordinador: orienta al equipo y modera decisiones</span></label>
           <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Investigador: busca, selecciona y valida la información</span></label>
           <label class="check-pill"><input type="checkbox" onchange="updatePill(this,'checked-purple');calcProgress()"> <span>Gestor de recursos: organiza materiales, tiempos y herramientas</span></label>
@@ -1116,12 +1113,29 @@ function collectDocentes() {
 function collectCorreos() {
   return Array.from(document.querySelectorAll(".d-correo")).map(e => e.value).filter(Boolean).join(', ');
 }
+function collectChecked(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return '(ninguna seleccionada)';
+  const items = Array.from(container.querySelectorAll('.check-pill')).map(item => {
+    const cb = item.querySelector('input[type=checkbox]');
+    const txt = (item.querySelector('span') || item).textContent.trim();
+    return cb && cb.checked ? '  • ' + txt : null;
+  }).filter(Boolean);
+  return items.length ? items.join('\n') : '(ninguna seleccionada)';
+}
 function collectCompGroup(selector) {
-  return Array.from(document.querySelectorAll(selector + " .check-pill")).map(item => {
-    const cb = item.querySelector("input[type=checkbox]");
-    const txt = (item.querySelector("span") || item).textContent.trim();
-    return cb && cb.checked ? txt : null;
-  }).filter(Boolean).join('; ');
+  // Fallback selector-based version (kept for compatibility)
+  const container = document.querySelector(selector);
+  if (!container) return '(ninguna seleccionada)';
+  return collectCheckedFromEl(container);
+}
+function collectCheckedFromEl(container) {
+  const items = Array.from(container.querySelectorAll('.check-pill')).map(item => {
+    const cb = item.querySelector('input[type=checkbox]');
+    const txt = (item.querySelector('span') || item).textContent.trim();
+    return cb && cb.checked ? '  • ' + txt : null;
+  }).filter(Boolean);
+  return items.length ? items.join('\n') : '(ninguna seleccionada)';
 }
 function collectAreas() {
   const checked = Array.from(document.querySelectorAll("#areasGrid input[type=checkbox]:checked")).map(c => c.parentElement.textContent.trim());
@@ -1268,10 +1282,9 @@ function restoreDraft() {
         if (checked) {
           const pill = allCbs[i].closest(".check-pill");
           if (pill) {
-            const grps = document.querySelectorAll(".comp-group");
-            if (pill.closest(".comp-group") === grps[0]) updatePill(allCbs[i], "checked-teal");
-            else if (pill.closest(".comp-group") === grps[1]) updatePill(allCbs[i], "checked-purple");
-            else if (pill.closest(".comp-group") === grps[2]) updatePill(allCbs[i], "checked-amber");
+            if (pill.closest("#compDigital")) updatePill(allCbs[i], "checked-teal");
+            else if (pill.closest("#compSocio")) updatePill(allCbs[i], "checked-purple");
+            else if (pill.closest("#compEmpre")) updatePill(allCbs[i], "checked-amber");
             else updatePill(allCbs[i], "checked-teal");
           }
         }
@@ -1315,9 +1328,14 @@ ${val("objetivosEspecificos")}
 
 COMPETENCIAS SELECCIONADAS
 --------------------------
-Digitales (ISTE): ${collectCompGroup(".comp-group:nth-child(2)")}
-Socioemocionales: ${collectCompGroup(".comp-group:nth-child(3)")}
-Emprendedoras (Fundadiv): ${collectCompGroup(".comp-group:nth-child(4)")}
+[ Digitales — Estándares ISTE ]
+${collectChecked("compDigital")}
+
+[ Socioemocionales — CASEL / Bisquerra / Navegar Seguros ]
+${collectChecked("compSocio")}
+
+[ Emprendedoras — Marco Fundadiv ]
+${collectChecked("compEmpre")}
 
 PREGUNTA RETADORA Y ODS
 ------------------------
@@ -1339,6 +1357,8 @@ ${val("f2")}
    Necesidades de la comunidad: ${val("f2_necesidades")}
    Intereses de los estudiantes: ${val("f2_intereses")}
    Organización de grupos: ${val("f2_tamano")} / Criterio: ${val("f2_criterio")}
+   Roles asignados al equipo:
+${collectChecked("rolesGrid")}
    Notas grupos: ${val("f2_notas_grupos")}
 
 3. Recolección de información:
